@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WealthWise | Smart Financial Planner</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+      color: #222;
+      overflow-x: hidden;
+    }
+
+    /* Header with glowing WealthWise */
+    header {
+      background: linear-gradient(90deg, #004aad, #002f6c);
+      color: white;
+      padding: 40px 0;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+
+    header h1 {
+      font-size: 60px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, #ffd700, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 25px rgba(255,215,0,0.3);
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+
+    .logo-icon {
+      font-size: 55px;
+      margin-right: 10px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 15px rgba(255,215,0,0.4), 0 0 30px rgba(255,215,0,0.2); }
+      to { text-shadow: 0 0 25px rgba(255,215,0,0.7), 0 0 45px rgba(255,215,0,0.5); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 110px 40px 90px;
+      background: url('{{ url_for("static", filename="images/finance-bg.jpg") }}') no-repeat center/cover;
+      color: white;
+      text-shadow: 0 3px 8px rgba(0,0,0,0.6);
+    }
+
+    .hero h2 {
+      font-size: 52px;
+      margin-bottom: 25px;
+    }
+
+    .hero p {
+      font-size: 20px;
+      margin-bottom: 50px;
+    }
+
+    .btn {
+      background: #ffd700;
+      color: #004aad;
+      padding: 14px 34px;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #fff;
+      color: #004aad;
+      transform: translateY(-3px);
+    }
+
+    /* About section */
+    .about {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 60px;
+      padding: 100px 80px;
+      background: white;
+    }
+
+    .about-text {
+      flex: 1;
+    }
+
+    .about-text h2 {
+      color: #004aad;
+      font-size: 38px;
+      margin-bottom: 20px;
+    }
+
+    .about-text p {
+      font-size: 18px;
+      color: #0b0101ff;
+      line-height: 1.8;
+    }
+
+    .about img {
+      flex: 1;
+      width: 90%;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    /* Developers section */
+    .team {
+      background: #eaf2ff;
+      padding: 90px 60px;
+      text-align: center;
+    }
+
+    .team h2 {
+      font-size: 38px;
+      color: #004aad;
+      margin-bottom: 40px;
+    }
+
+    .team-container {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      flex-wrap: wrap;
+    }
+
+    .member {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      width: 280px;
+      padding: 30px 20px;
+      transition: all 0.3s ease;
+    }
+
+    .member:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+
+    .member img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      border: 4px solid #004aad;
+      object-fit: cover;
+    }
+
+    .member h3 {
+      margin: 10px 0 5px;
+      font-size: 22px;
+      color: #004aad;
+    }
+
+    .quote {
+      font-style: italic;
+      color: #e61f1fff;
+      font-size: 15px;
+      margin: 8px 0;
+    }
+
+    .from {
+      font-size: 14px;
+      color: #777;
+    }
+
+    footer {
+      background: #004aad;
+      color: white;
+      text-align: center;
+      padding: 25px;
+      margin-top: 40px;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Animated, glowing header -->
+  <header>
+    <h1><span class="logo-icon">💰</span> Wealth<span style="color:#ffd700;">Wise</span></h1>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>Your Path to Financial Freedom Starts Here</h2>
+    <p>Plan, Predict & Prosper with WealthWise — your AI-powered financial growth partner.</p>
+    <a href="{{ url_for('dashboard') }}" class="btn">Get Started</a>
+  </section>
+
+  <!-- About Section -->
+  <section class="about">
+    <div class="about-text">
+      <h2>About WealthWise</h2>
+      <p>WealthWise is your personalized financial advisor, helping you track assets, predict growth, and plan for a secure future. 
+         Using data-driven insights and predictive intelligence, we empower you to make smarter decisions. 
+         From savings optimization to retirement forecasting — WealthWise simplifies your journey towards financial independence.</p>
+    </div>
+    <img src="{{ url_for('static', filename='images/home.jfif') }}" alt="WealthWise Overview">
+  </section>
+
+  <!-- Team Section -->
+  <section class="team">
+    <h2>Meet Our Developers</h2>
+    <div class="team-container">
+      <div class="member">
+        <img src="{{ url_for('static', filename='images/Vrunda.jfif') }}" alt="Vrunda">
+        <h3>Vrunda</h3>
+        <p class="quote">"Turning data into meaningful financial insights."<br><span class="from">— AI Developer</span></p>
+      </div>
+      <div class="member">
+        <img src="{{ url_for('static', filename='images/Arya.jfif') }}" alt="Arya">
+        <h3>Arya</h3>
+        <p class="quote">"Designing interfaces that make finance feel effortless."<br><span class="from">— UI/UX Engineer</span></p>
+      </div>
+      <div class="member">
+        <img src="{{ url_for('static', filename='images/Anushka.jfif') }}" alt="Anushka">
+        <h3>Anushka</h3>
+        <p class="quote">"Blending code and creativity for smarter experiences."<br><span class="from">— Backend Developer</span></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 WealthWise | Empowering Smarter Finance Decisions</p>
+  </footer>
+</body>
+</html>

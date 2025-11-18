@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | WealthWise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f8fbff, #ffffff);
+      color: #222;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: linear-gradient(90deg, #f0f6ff, #e3eeff);
+      color: #004aad;
+      text-align: center;
+      padding: 30px 0 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 46px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #004aad, #00a6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1.3px;
+      margin-bottom: 15px;
+      text-shadow: 0 0 25px rgba(0,166,255,0.15);
+    }
+
+    nav a {
+      color: #004aad;
+      text-decoration: none;
+      margin: 0 18px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #ffd700;
+      text-shadow: 0 0 8px rgba(255,215,0,0.7);
+    }
+
+    .dashboard {
+      text-align: center;
+      padding: 90px 40px;
+    }
+
+    .dashboard h2 {
+      font-size: 40px;
+      background: linear-gradient(90deg, #004aad, #0077b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .dashboard p {
+      color: #555;
+      font-size: 18px;
+      margin-bottom: 60px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 45px;
+      justify-content: center;
+      align-items: center;
+      max-width: 1250px;
+      margin: 0 auto;
+    }
+
+    .card {
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 25px;
+      border-top: 6px solid transparent;
+      position: relative;
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card h3 {
+      font-size: 22px;
+      margin: 18px 0 8px;
+      font-weight: 700;
+    }
+
+    .card p {
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 0 15px;
+    }
+
+    .feature2 { background: #e6fff6; border-top-color: #00b48a; box-shadow: 0 0 18px rgba(0,180,138,0.25); }
+    .feature3 { background: #fff8e6; border-top-color: #ffd700; box-shadow: 0 0 18px rgba(255,215,0,0.25); }
+    .feature4 { background: #f4eaff; border-top-color: #9d4edd; box-shadow: 0 0 18px rgba(157,78,221,0.25); }
+    .feature5 { background: #ffe6f2; border-top-color: #ff5c8a; box-shadow: 0 0 18px rgba(255,92,138,0.25); }
+    .feature6 { background: #e9ffe6; border-top-color: #48c774; box-shadow: 0 0 18px rgba(72,199,116,0.25); }
+    .feature7 { background: #e6f0ff; border-top-color: #1e90ff; box-shadow: 0 0 18px rgba(30,144,255,0.25);}
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 0 25px rgba(0,0,0,0.1), 0 0 20px rgba(255,255,255,0.4);
+    }
+
+    footer {
+      background: #004aad;
+      color: white;
+      text-align: center;
+      padding: 25px;
+      margin-top: 70px;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1> Wealth<span style="color:#ffd700;">Wise</span> Dashboard</h1>
+  <nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('investment_path') }}">Investment Path</a>
+    <a href="{{ url_for('expenses_savings') }}">Expenses & Savings</a>
+    <a href="{{ url_for('asset_growth') }}">Asset Growth</a>
+    <a href="{{ url_for('retirement_page') }}">Retirement</a>
+    <a href="{{ url_for('learn_more') }}">Learn More</a>
+  </nav>
+</header>
+
+<section class="dashboard">
+  <h2>Your Financial Overview</h2>
+  <p>Explore your personalized financial tools — designed to make wealth planning effortless and data-driven.</p>
+
+  <div class="cards">
+
+    <a href="{{ url_for('investment_path') }}" class="card feature2">
+      <img src="{{ url_for('static', filename='images/Investment_pathway.jfif') }}" alt="Investment Pathway">
+      <h3>Investment Pathway Generator</h3>
+      <p>Generate optimized investment routes aligned with your goals and risk tolerance.</p>
+    </a>
+
+    <a href="{{ url_for('expenses_savings') }}" class="card feature3">
+      <img src="{{ url_for('static', filename='images/Savings_expenses.jfif') }}" alt="Expenses & Savings">
+      <h3>Expenses & Savings Visualizer</h3>
+      <p>Visualize spending patterns and fine-tune your savings for future stability.</p>
+    </a>
+
+    <a href="{{ url_for('asset_growth') }}" class="card feature4">
+      <img src="{{ url_for('static', filename='images/Assets_growth.jfif') }}" alt="Asset Growth">
+      <h3>Asset Growth Predictor</h3>
+      <p>Predict asset appreciation using advanced financial forecasting models.</p>
+    </a>
+
+    <a href="{{ url_for('retirement_page') }}" class="card feature5">
+      <img src="{{ url_for('static', filename='images/retirement.jpg') }}" alt="Retirement Readiness Analyzer">
+      <h3>Retirement Readiness Analyzer</h3>
+      <p>Evaluate your financial readiness for retirement and plan for long-term stability.</p>
+    </a>
+
+    <a href="{{ url_for('learn_more') }}" class="card feature6">
+      <img src="{{ url_for('static', filename='images/learnMore.jfif') }}" alt="Learn More">
+      <h3>Learn More</h3>
+      <p>Dive into expert guides and learn smart strategies for financial success.</p>
+    </a>
+
+    <a href="{{ url_for('expense_category_page') }}" class="card feature7">
+      <img src="{{ url_for('static', filename='images/expense_category.webp') }}" alt="Expense Category Predictor">
+      <h3>Expense Category Predictor (NLP)</h3>
+      <p>Automatically classify your expenses using AI-powered natural language processing.</p>
+    </a>
+
+
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 WealthWise | Empowering Smarter Finance Decisions</p>
+</footer>
+</body>
+</html>

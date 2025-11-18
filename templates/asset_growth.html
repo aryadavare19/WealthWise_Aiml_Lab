@@ -1,0 +1,216 @@
+<!-- templates/asset_growth.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Asset Growth | WealthWise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; background: linear-gradient(135deg,#f6fbff,#fff); margin:0; padding:20px;}
+    .container { max-width:1100px; margin: 20px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 6px 30px rgba(0,0,0,0.06);}
+    header h1 { text-align:center; margin:0 0 18px; font-size:28px; }
+    .top-row { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .btn { background:linear-gradient(90deg,#9d4edd,#b47bff); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer;}
+    table{ width:100%; border-collapse:collapse; margin-top:16px;}
+    th,td{ padding:8px; text-align:center; border:1px solid #eee;}
+    th{ background:#9d4edd; color:#fff;}
+    .controls { margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+    .small { font-size:14px; color:#444; }
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; }
+    .modal .card { background:#fff; padding:18px; border-radius:12px; max-width:480px; width:100%; }
+    canvas{ width:100%; height:420px; margin-top:20px; }
+    input, select { width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;}
+    .close-btn { cursor:pointer; background:#eee; padding:4px 8px; border-radius:6px; }
+    .fv-cell { font-weight:700; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>📈 Asset Growth Calculator</h1>
+    </header>
+
+   <div class="top-row">
+  <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+    <button id="btnAddAsset" class="btn">+ Add Asset</button>
+    <a href="{{ url_for('dashboard') }}" class="btn" style="background:#9d4edd;">← Back to Dashboard</a>
+  </div>
+
+  <div class="controls">
+    <label class="small">Projection Years:
+      <input id="yearsInput" type="number" min="1" max="50" value="{{ years }}" style="width:100px;">
+    </label>
+    <button id="btnUpdate" class="btn">Update Projection</button>
+  </div>
+</div>
+
+
+    <section style="margin-top:18px;">
+      <h3>Your Assets</h3>
+      <table id="assetsTable">
+        <thead>
+          <tr>
+            <th>Asset Type</th>
+            <th>Quantity</th>
+            <th>Price / Unit (₹)</th>
+            <th>Expected Return (%)</th>
+            <th>Future Value (Year 1) (₹)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in assets %}
+          <tr data-id="{{ a.id }}">
+            <td>{{ a.asset_type }}</td>
+            <td>{{ a.quantity }}</td>
+            <td>{{ "{:,.2f}".format(a.price_per_unit) }}</td>
+            <td>{{ a.expected_return }}</td>
+            <td class="fv_cell">-</td>
+            <td>
+              <form action="{{ url_for('delete_asset', asset_id=a.id) }}" method="post">
+                <button class="btn" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <canvas id="portfolioChart"></canvas>
+  </div>
+
+  <!-- Add Asset Modal -->
+  <div id="assetModal" class="modal" aria-hidden="true">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Add Asset</h3>
+        <button id="closeModal" class="close-btn">✕</button>
+      </div>
+
+      <form id="addAssetForm" action="{{ url_for('add_asset') }}" method="POST">
+        <!-- Keep dropdown exactly as you had -->
+        <label>Asset Type</label>
+        <select name="asset_type" required>
+          <option value="Gold">Gold</option>
+          <option value="Stock">Stocks</option>
+          <option value="Mutual Fund">Mutual Funds</option>
+          <option value="Real Estate">Real Estate</option>
+          <option value="Crypto">Crypto</option>
+          <option value="Bond">Bonds</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <!-- Optional: you can add an asset_name field if you want later; left out to match your current UI -->
+        <label>Quantity</label>
+        <input name="quantity" type="number" step="any" placeholder="e.g., 10" required>
+
+        <label>Current Value per Unit (₹)</label>
+        <input name="price_per_unit" type="number" step="any" placeholder="e.g., 5000" required>
+
+        <label>Expected Annual Return (%)</label>
+        <input name="expected_return" type="number" step="0.01" placeholder="e.g., 8.5" required>
+
+        <div style="text-align:right; margin-top:14px;">
+          <button type="button" id="cancelAdd" class="btn" style="background:#eee; color:#333;">Cancel</button>
+          <button type="submit" class="btn">Add Asset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const btnAddAsset = document.getElementById('btnAddAsset');
+    const assetModal = document.getElementById('assetModal');
+    const closeModal = document.getElementById('closeModal');
+    const cancelAdd = document.getElementById('cancelAdd');
+    const btnUpdate = document.getElementById('btnUpdate');
+    const yearsInput = document.getElementById('yearsInput');
+    const assetsTable = document.querySelector('#assetsTable tbody');
+
+    btnAddAsset.onclick = () => { assetModal.style.display = 'flex'; assetModal.setAttribute('aria-hidden','false'); };
+    closeModal.onclick = () => { assetModal.style.display = 'none'; assetModal.setAttribute('aria-hidden','true'); };
+    cancelAdd.onclick = () => { assetModal.style.display = 'none'; assetModal.setAttribute('aria-hidden','true'); };
+    window.onclick = (e) => { if (e.target === assetModal) { assetModal.style.display = 'none'; assetModal.setAttribute('aria-hidden','true'); } };
+
+    // Chart
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    let portfolioChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: [], datasets: [] },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' }},
+        scales:{ x:{title:{display:true,text:'Years'}}, y:{title:{display:true,text:'Value (₹)'}} }
+      }
+    });
+
+    async function loadProjection() {
+      const years = parseInt(yearsInput.value) || 10;
+      const form = new FormData();
+      form.append('years', years);
+
+      const res = await fetch('/update_timeframe', { method: 'POST', body: form });
+      const data = await res.json();
+      if (data.error) {
+        alert("Error: " + data.error);
+        return;
+      }
+
+      // update FV cells by asset id
+      const rows = assetsTable.querySelectorAll('tr');
+      rows.forEach(row => {
+        const aid = row.dataset.id;
+        const fvCell = row.querySelector('.fv_cell');
+        if (data.projection[aid]) {
+          fvCell.innerText = Number(data.projection[aid][0]).toLocaleString('en-IN');
+        } else {
+          fvCell.innerText = '-';
+        }
+      });
+
+      // Build datasets: one per asset (ordered by keys in labels), then portfolio total
+      const colors = ['#9d4edd','#00a6ff','#ff7b7b','#ffd166','#6ab04c','#7f8c8d','#f39c12','#2ecc71','#3498db','#b347ff'];
+      const datasets = [];
+      let idx = 0;
+
+      // keep consistent order: use labels object
+      for (const aid of Object.keys(data.labels)) {
+        const label = data.labels[aid];
+        const series = data.projection[aid] || [];
+        datasets.push({
+          label: label,
+          data: series,
+          borderColor: colors[idx % colors.length],
+          backgroundColor: colors[idx % colors.length],
+          fill: false,
+          tension: 0.2
+        });
+        idx++;
+      }
+
+      // total dataset
+      datasets.push({
+        label: 'Portfolio Total',
+        data: data.total,
+        borderColor: '#111827',
+        backgroundColor: '#111827',
+        fill: false,
+        borderWidth: 2,
+        tension: 0.2
+      });
+
+      portfolioChart.data.labels = data.years.map(String);
+      portfolioChart.data.datasets = datasets;
+      portfolioChart.update();
+    }
+
+    btnUpdate.onclick = loadProjection;
+    // load once on page open
+    loadProjection();
+  </script>
+</body>
+</html>

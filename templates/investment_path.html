@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WealthWise — Investment Allocator</title>
+
+  <style>
+    :root{--accent:#2563eb;--muted:#6b7280}
+    body{
+      font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;
+      margin:0;
+      background:#e6fff6;
+      color:#0f172a;
+    }
+    .container{
+      max-width:1100px;
+      margin:32px auto;
+      padding:22px;
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 8px 30px rgba(2,6,23,0.08);
+    }
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo{
+      width:56px;height:56px;border-radius:8px;
+      background:linear-gradient(135deg,var(--accent),#7c3aed);
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700
+    }
+    h1{margin:0;font-size:20px}
+    form{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input, select{
+      width:100%;padding:10px;border:1px solid #e6eef6;border-radius:8px
+    }
+    button{
+      grid-column:1/-1;padding:12px;
+      background:var(--accent);color:#fff;border:none;
+      border-radius:8px;font-weight:600;cursor:pointer
+    }
+    .row{display:flex;gap:12px;margin-top:18px}
+    .card{flex:1;background:#fbfdff;padding:14px;border-radius:10px;border:1px solid #eef4ff}
+    .kpi{font-size:28px;font-weight:700}
+    .small{font-size:13px;color:var(--muted)}
+    .chart-area{height:300px}
+    .back-btn{
+      display:block;width:40%;margin:35px auto 10px;text-align:center;
+      padding:12px;background:var(--accent);color:white;text-decoration:none;
+      border-radius:8px;font-weight:600;transition:.3s
+    }
+    .back-btn:hover{opacity:.85;transform:translateY(-2px)}
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="logo">WW</div>
+    <div>
+      <h1>WealthWise — Investment Allocator</h1>
+      <div class="small">Enter your actual profile for ML-based asset allocation</div>
+    </div>
+  </header>
+
+<div class="warning-box" style="
+    background: #fff7e6;
+    padding: 12px 16px;
+    border-left: 4px solid #f59e0b;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    color: #92400e;
+    font-size: 14px;
+">
+  ⚠️ <strong>Important:</strong> Default values are placeholders. 
+  Please update each field as per your actual details before clicking <strong>Generate Allocation</strong>.
+</div>
+
+
+<form action="{{ url_for('predict_investment') }}" method="post" novalidate>
+
+  <div>
+    <label>Age</label>
+    <input type="number" name="age" min="18" max="100"
+           value="{{ defaults.age if defaults else '' }}">
+    <div class="help-text">Your current age (used to assess risk capacity).</div>
+  </div>
+
+  <div>
+    <label>Monthly Income</label>
+    <input type="number" name="monthly_income" min="0"
+           value="{{ defaults.monthly_income if defaults else '' }}">
+    <div class="help-text">Total monthly earnings before deductions.</div>
+  </div>
+
+  <div>
+    <label>Current Savings</label>
+    <input type="number" name="current_savings" min="0"
+           value="{{ defaults.current_savings if defaults else '' }}">
+    <div class="help-text">Total amount currently saved across all accounts.</div>
+  </div>
+
+  <div>
+    <label>Investment Horizon (years)</label>
+    <input type="number" name="investment_horizon_years" min="1" max="50"
+           value="{{ defaults.investment_horizon_years if defaults else '' }}">
+    <div class="help-text">Number of years you plan to stay invested.</div>
+  </div>
+
+  <div>
+    <label>Credit Score</label>
+    <input type="number" name="credit_score" min="300" max="900"
+           value="{{ defaults.credit_score if defaults else '' }}">
+    <div class="help-text">Enter your credit score (300–900 range).</div>
+  </div>
+
+  <div>
+    <label>Monthly Expenses</label>
+    <input type="number" name="expenses_per_month" min="0"
+           value="{{ defaults.expenses_per_month if defaults else '' }}">
+    <div class="help-text">Your total monthly spending (bills, food, rent, etc.).</div>
+  </div>
+
+  <div>
+    <label>Debt Amount</label>
+    <input type="number" name="debt_amount" min="0"
+           value="{{ defaults.debt_amount if defaults else '' }}">
+    <div class="help-text">Total outstanding loans or debt you currently owe.</div>
+  </div>
+
+  <div>
+    <label>Marital Status</label>
+    <select name="marital_status">
+      <option value="0">Single</option>
+      <option value="1">Married</option>
+    </select>
+    <div class="help-text">Select whether you are single or married.</div>
+  </div>
+
+  <div>
+    <label>Dependents</label>
+    <input type="number" name="dependents" min="0" max="10"
+           value="{{ defaults.dependents if defaults else '' }}">
+    <div class="help-text">Number of people financially dependent on you.</div>
+  </div>
+
+  <div>
+  <label>Existing Investments</label>
+  <select name="has_existing_investments">
+    <option value="0">No</option>
+    <option value="1">Yes</option>
+  </select>
+  <div class="help-text">Choose if you already invest in any assets.</div>
+</div>
+
+
+<div style="grid-column:1/-1;">
+  <label>Investment Amount</label>
+  <input type="number" name="investment_amount" min="1" required placeholder="Enter amount to invest"
+         value="{{ defaults.investment_amount if defaults else '' }}">
+  <div class="help-text">Total amount you want to invest right now.</div>
+</div>
+
+
+<div style="grid-column:1/-1; text-align:center; margin-top:25px;">
+  <button type="submit"
+          style="width:45%; padding:14px; font-size:18px;
+                 background:#22c55e; color:white; border:none;
+                 border-radius:10px; font-weight:600; cursor:pointer;">
+    Get Allocation
+  </button>
+</div>
+
+
+</form>
+
+  {% if result %}
+ <div class="row" style="margin-top:20px">
+  <div class="card">
+    <div class="small">Equity Amount</div>
+    <div class="kpi">₹{{ result.investment_split.equity }}</div>
+  </div>
+  <div class="card">
+    <div class="small">Debt Amount</div>
+    <div class="kpi">₹{{ result.investment_split.debt }}</div>
+  </div>
+  <div class="card">
+    <div class="small">Gold Amount</div>
+    <div class="kpi">₹{{ result.investment_split.gold }}</div>
+  </div>
+  <div class="card">
+    <div class="small">Real Estate Amount</div>
+    <div class="kpi">₹{{ result.investment_split.real_estate }}</div>
+  </div>
+</div>
+
+
+  <div style="width:230px; height:230px; margin-top:20px;">
+  <canvas id="chart"></canvas>
+</div>
+
+<script>
+  const ctx = document.getElementById('chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Equity', 'Debt', 'Gold', 'Real Estate'],
+      datasets: [{
+        data: [{{ result.equity }}, {{ result.debt }}, {{ result.gold }}, {{ result.real_estate }}],
+        borderWidth: 1
+      }]
+    }
+  });
+</script>
+
+<div class="row" style="margin-top:20px">
+  <div class="card">
+    <div class="small">Risk Score</div>
+    <div class="kpi">{{ result.risk_score }}</div>
+    <div class="small">Based on your current financial profile</div>
+  </div>
+  <div class="card">
+    <div class="small">Risk Level</div>
+    <div class="kpi" style="color:
+      {% if result.risk_label == 'LOW' %}#16a34a
+      {% elif result.risk_label == 'MODERATE' %}#f59e0b
+      {% else %}#dc2626{% endif %}">
+      {{ result.risk_label }}
+    </div>
+    <div class="small">
+      {% if result.risk_label == 'LOW' %}
+      You're in a stable financial position with a low risk of financial stress.
+      {% elif result.risk_label == 'MODERATE' %}
+      Moderate risk detected — some caution is advised when investing aggressively.
+      {% else %}
+      High risk identified — consider reducing debt and increasing savings.
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+  {% endif %}
+
+  <a class="back-btn" href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>
